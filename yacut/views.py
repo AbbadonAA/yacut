@@ -1,10 +1,11 @@
-from flask import render_template, flash, redirect, abort
-from .models import URL_map
-from .forms import URL_mapForm
-from .constants import SYMBOLS, S_LENGTH
 import random
 
+from flask import abort, flash, redirect, render_template
+
 from . import app, db
+from .constants import S_LENGTH, SYMBOLS
+from .forms import URL_mapForm
+from .models import URL_map
 
 
 def check_short_id(short_id):
