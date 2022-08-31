@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect
+from flask import render_template, flash, redirect, abort
 from .models import URL_map
 from .forms import URL_mapForm
 from .constants import SYMBOLS, S_LENGTH
@@ -7,10 +7,17 @@ import random
 from . import app, db
 
 
+def check_short_id(short_id):
+    """Проверка уникальности нового адреса."""
+    if URL_map.query.filter_by(short=short_id).first() is None:
+        return True
+    return False
+
+
 def get_unique_short_id():
     """Генерация случайной уникальной последовательности из 6 символов."""
     short_id = ''.join(random.choice(SYMBOLS) for i in range(S_LENGTH))
-    if URL_map.query.filter_by(short=short_id).first() is None:
+    if check_short_id(short_id):
         return short_id
     return get_unique_short_id()
 
@@ -22,7 +29,7 @@ def index_view():
         custom_id = form.custom_id.data
         if not custom_id:
             custom_id = get_unique_short_id()
-        if URL_map.query.filter_by(short=custom_id).first() is not None:
+        elif not check_short_id(custom_id):
             flash('Данная ссылка занята', 'link-taken')
             return render_template('index.html', form=form)
         new_url = URL_map(
@@ -37,5 +44,7 @@ def index_view():
 
 @app.route('/<short_id>')
 def follow_link(short_id):
-    original_link = URL_map.query.filter_by(short=short_id).first().original
-    return redirect(original_link)
+    original_link = URL_map.query.filter_by(short=short_id).first()
+    if not original_link:
+        abort(404)
+    return redirect(original_link.original)
