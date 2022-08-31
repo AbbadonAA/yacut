@@ -2,6 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, URLField
 from wtforms.validators import URL, DataRequired, Length, Optional, Regexp
 
+from .constants import LINK_REG
+
 
 class URL_mapForm(FlaskForm):
     original_link = URLField(
@@ -16,7 +18,7 @@ class URL_mapForm(FlaskForm):
             Optional(),
             Length(1, 16),
             Regexp(
-                regex=r'^[a-z_A-Z\d-]+\b',
+                regex=LINK_REG,
                 message='Допустимы только символы: a-Z, - , _ ')]
     )
     submit = SubmitField('Создать')
