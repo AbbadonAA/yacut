@@ -1,11 +1,12 @@
-from flask import jsonify, request
 import re
 
+from flask import jsonify, request
+
 from . import app, db
-from .models import URL_map
-from .views import get_unique_short_id, check_short_id
 from .constants import LINK_REG
 from .error_handlers import APIErrors
+from .models import URL_map
+from .views import check_short_id, get_unique_short_id
 
 
 @app.route('/api/id/', methods=['POST'])

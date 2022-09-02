@@ -1,6 +1,6 @@
-from flask import url_for
-
 from datetime import datetime as dt
+
+from flask import url_for
 
 from yacut import db
 
