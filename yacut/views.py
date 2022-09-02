@@ -31,7 +31,7 @@ def index_view():
         if not custom_id:
             custom_id = get_unique_short_id()
         elif not check_short_id(custom_id):
-            flash('Данная ссылка занята', 'link-taken')
+            flash(f'Имя {custom_id} уже занято!', 'link-taken')
             return render_template('index.html', form=form)
         new_url = URL_map(
             original=form.original_link.data,
