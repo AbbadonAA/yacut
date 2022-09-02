@@ -19,6 +19,6 @@ class URL_mapForm(FlaskForm):
             Length(1, 16),
             Regexp(
                 regex=LINK_REG,
-                message='Допустимы только символы: a-Z, - , _ ')]
+                message='Допустимы только цифры и буквы "a-Z"')]
     )
     submit = SubmitField('Создать')
