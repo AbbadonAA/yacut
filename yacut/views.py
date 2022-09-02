@@ -8,9 +8,14 @@ from .forms import URL_mapForm
 from .models import URL_map
 
 
+def get_db_object(column, query):
+    """Фильтрация и получение ответа из БД."""
+    return URL_map.query.filter(column == query).first()
+
+
 def check_short_id(short_id):
     """Проверка уникальности нового адреса."""
-    if URL_map.query.filter_by(short=short_id).first() is None:
+    if get_db_object(URL_map.short, short_id) is None:
         return True
     return False
 
@@ -45,7 +50,8 @@ def index_view():
 
 @app.route('/<short_id>')
 def follow_link(short_id):
-    original_link = URL_map.query.filter_by(short=short_id).first()
-    if not original_link:
+    db_object = get_db_object(URL_map.short, short_id)
+    if not db_object:
         abort(404)
-    return redirect(original_link.original)
+    original_link = db_object.original
+    return redirect(original_link)

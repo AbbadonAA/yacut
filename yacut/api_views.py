@@ -6,7 +6,7 @@ from . import app, db
 from .constants import LINK_REG
 from .error_handlers import APIErrors
 from .models import URL_map
-from .views import check_short_id, get_unique_short_id
+from .views import check_short_id, get_db_object, get_unique_short_id
 
 
 @app.route('/api/id/', methods=['POST'])
@@ -35,7 +35,8 @@ def create_short_link():
 
 @app.route('/api/id/<short_id>/', methods=['GET'])
 def get_original_url(short_id):
-    original_url = URL_map.query.filter_by(short=short_id).first()
-    if not original_url:
+    db_object = get_db_object(URL_map.short, short_id)
+    if not db_object:
         raise APIErrors('Указанный id не найден', 404)
-    return jsonify({'url': original_url.original}), 200
+    original_url = db_object.original
+    return jsonify({'url': original_url}), 200
