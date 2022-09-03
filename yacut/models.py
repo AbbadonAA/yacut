@@ -3,7 +3,6 @@ from datetime import datetime as dt
 from flask import url_for
 
 from yacut import db
-
 from .constants import FIELD_NAMES
 
 
