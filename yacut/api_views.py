@@ -36,7 +36,7 @@ def create_short_link():
 
 @app.route('/api/id/<short_id>/', methods=['GET'])
 def get_original_url(short_id):
-    db_object = get_db_object(URL_map.short, short_id)
+    db_object = get_db_object(URL_map.short, short_id).first()
     if not db_object:
         raise APIErrors('Указанный id не найден', HTTPStatus.NOT_FOUND)
     original_url = db_object.original

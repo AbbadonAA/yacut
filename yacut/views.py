@@ -1,6 +1,6 @@
 import random
 
-from flask import abort, flash, redirect, render_template
+from flask import flash, redirect, render_template
 
 from . import app, db
 from .constants import S_LENGTH, SYMBOLS
@@ -10,12 +10,12 @@ from .models import URL_map
 
 def get_db_object(column, query):
     """Фильтрация и получение ответа из БД."""
-    return URL_map.query.filter(column == query).first()
+    return URL_map.query.filter(column == query)
 
 
 def check_short_id(short_id):
     """Проверка уникальности нового адреса."""
-    if get_db_object(URL_map.short, short_id) is None:
+    if get_db_object(URL_map.short, short_id).first() is None:
         return True
     return False
 
@@ -31,27 +31,25 @@ def get_unique_short_id():
 @app.route('/', methods=['GET', 'POST'])
 def index_view():
     form = URL_mapForm()
-    if form.validate_on_submit():
-        custom_id = form.custom_id.data
-        if not custom_id:
-            custom_id = get_unique_short_id()
-        elif not check_short_id(custom_id):
-            flash(f'Имя {custom_id} уже занято!', 'link-taken')
-            return render_template('index.html', form=form)
-        new_url = URL_map(
-            original=form.original_link.data,
-            short=custom_id
-        )
-        db.session.add(new_url)
-        db.session.commit()
-        return render_template('index.html', url=new_url, form=form)
-    return render_template('index.html', form=form)
+    if not form.validate_on_submit():
+        return render_template('index.html', form=form)
+    custom_id = form.custom_id.data
+    if not custom_id:
+        custom_id = get_unique_short_id()
+    elif not check_short_id(custom_id):
+        flash(f'Имя {custom_id} уже занято!', 'link-taken')
+        return render_template('index.html', form=form)
+    new_url = URL_map(
+        original=form.original_link.data,
+        short=custom_id
+    )
+    db.session.add(new_url)
+    db.session.commit()
+    return render_template('index.html', url=new_url, form=form)
 
 
 @app.route('/<short_id>')
 def follow_link(short_id):
-    db_object = get_db_object(URL_map.short, short_id)
-    if not db_object:
-        abort(404)
+    db_object = get_db_object(URL_map.short, short_id).first_or_404()
     original_link = db_object.original
     return redirect(original_link)
