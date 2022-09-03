@@ -1,4 +1,5 @@
 import re
+from http import HTTPStatus
 
 from flask import jsonify, request
 
@@ -30,13 +31,13 @@ def create_short_link():
     new_url.from_dict(data)
     db.session.add(new_url)
     db.session.commit()
-    return jsonify(new_url.to_dict()), 201
+    return jsonify(new_url.to_dict()), HTTPStatus.CREATED
 
 
 @app.route('/api/id/<short_id>/', methods=['GET'])
 def get_original_url(short_id):
     db_object = get_db_object(URL_map.short, short_id)
     if not db_object:
-        raise APIErrors('Указанный id не найден', 404)
+        raise APIErrors('Указанный id не найден', HTTPStatus.NOT_FOUND)
     original_url = db_object.original
-    return jsonify({'url': original_url}), 200
+    return jsonify({'url': original_url}), HTTPStatus.OK
